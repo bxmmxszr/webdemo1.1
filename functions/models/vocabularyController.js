@@ -1,7 +1,7 @@
 // controllers/vocabularyController.js
 const Vocabulary = require('./models/Vocabulary');
 const UserVocabularyRecord = require('./models/UserVocabularyRecord');
-const CSVService = require('../services/csvService');
+const CSVService = require('../functions/csvService');
 const fs = require('fs');
 const path = require('path');
 
