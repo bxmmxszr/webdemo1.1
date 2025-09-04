@@ -1,8 +1,12 @@
+[build.environment]
+  NODE_VERSION = "18"  # 或 "20"，根据您本地版本选择
+  NPM_FLAGS = "--legacy-peer-deps"
+  
 [build]
   command = "npm run build"
   functions = "functions"
   publish = "src" # 主要的 HTML 文件在这里
-
+  
 [dev]
   port = 5500
   # targetPort 不需要，因为我们用 Functions 作为后端
@@ -12,6 +16,3 @@
   from = "/api/*"
   to = "/.netlify/functions/server/:splat"
   status = 200
-
-
-
