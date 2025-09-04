@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员注册 - 立信英语</title>
+    <!-- 引入 Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入 Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* 你的自定义样式 */
+        .payment-modal {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        /* ... 其他样式 ... */
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="payment-modal">
+            <h2 class="text-center mb-4">会员注册</h2>
+
+            <!-- 步骤指示器 -->
+            <nav aria-label="注册步骤">
+                <ol class="d-flex justify-content-center list-unstyled mb-4">
+                    <li class="flex-fill text-center mx-1">
+                        <span class="badge bg-primary step-indicator" data-step="1">1</span> 填写信息
+                    </li>
+                    <li class="flex-fill text-center mx-1">
+                        <span class="badge bg-secondary step-indicator" data-step="2">2</span> 扫码支付
+                    </li>
+                    <li class="flex-fill text-center mx-1">
+                        <span class="badge bg-secondary step-indicator" data-step="3">3</span> 完成
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- 步骤 1: 信息填写 -->
+            <div id="step1" class="step active">
+                <form id="registrationForm">
+                    <div class="mb-3">
+                        <label for="regEmail" class="form-label">邮箱地址 *</label>
+                        <input type="email" class="form-control" id="regEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="regName" class="form-label">姓名 *</label>
+                        <input type="text" class="form-control" id="regName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="regPassword" class="form-label">密码 *</label>
+                        <input type="password" class="form-control" id="regPassword" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label for="regConfirmPassword" class="form-label">确认密码 *</label>
+                        <input type="password" class="form-control" id="regConfirmPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">下一步</button>
+                </form>
+            </div>
+
+            <!-- 步骤 2: 扫码支付 -->
+            <div id="step2" class="step">
+                <div class="text-center">
+                    <h5 class="mb-3">请支付 ¥1.00</h5>
+                    <p>扫描下方二维码完成支付</p>
+                    <!-- 模拟二维码 -->
+                    <!-- <img src="https://via.placeholder.com/200x200/000000/ffffff?text=Pay+%C2%A51.00" alt="支付二维码" class="img-fluid rounded border mb-3" style="max-width: 200px;"> -->
+                    <img src="/upload/QRcode.png" alt="支付二维码" class="img-fluid rounded border mb-3" style="max-width: 200px;">
+                    <p><small> </small></p>
+                    <div class="d-grid gap-2">
+                        <button id="simulatePaymentBtn" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> 我已完成支付
+                        </button>
+                        <button id="backToStep1Btn" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> 返回上一步
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步骤 3: 注册成功 -->
+            <div id="step3" class="step text-center">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4>注册成功！</h4>
+                <p class="lead">欢迎 <span id="successUserName"></span>!</p>
+                <p>您的账户 <strong><span id="successUserEmail"></span></strong> 已创建。</p>
+                <a href="login.html" class="btn btn-primary">前往登录</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入 api.js -->
+    <script src="api.js"></script>
+    <script>
+        // --- JavaScript 逻辑 ---
+        let pendingRegistrationData = null; // 暂存注册信息
+
+        // 更新步骤指示器
+        function updateStepIndicator(currentStep) {
+            document.querySelectorAll('.step-indicator').forEach(indicator => {
+                const step = parseInt(indicator.getAttribute('data-step'));
+                indicator.classList.remove('bg-primary', 'bg-success', 'bg-secondary');
+                if (step < currentStep) {
+                    indicator.classList.add('bg-success');
+                } else if (step === currentStep) {
+                    indicator.classList.add('bg-primary');
+                } else {
+                    indicator.classList.add('bg-secondary');
+                }
+            });
+        }
+
+        // 切换步骤
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            updateStepIndicator(stepNumber);
+        }
+
+        // 表单提交事件 (进入支付步骤)
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            // 基本验证
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            // ... 其他验证 ...
+
+            pendingRegistrationData = { email, name, password };
+            showStep(2); // 显示支付步骤
+        });
+
+        // 模拟支付按钮事件
+        document.getElementById('simulatePaymentBtn').addEventListener('click', async function() {
+            if (!pendingRegistrationData) {
+                alert('注册信息丢失');
+                return;
+            }
+
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 验证中...';
+
+            try {
+                // 调用后端注册 API
+                const result = await api.register(
+                    pendingRegistrationData.email,
+                    pendingRegistrationData.password,
+                    pendingRegistrationData.name
+                );
+
+                if (result.success) {
+                    // 显示成功步骤
+                    document.getElementById('successUserName').textContent = result.user.name;
+                    document.getElementById('successUserEmail').textContent = result.user.email;
+                    showStep(3);
+                } else {
+                    throw new Error(result.error || '注册失败');
+                }
+            } catch (error) {
+                console.error('注册失败:', error);
+                alert('注册失败: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        // 返回上一步按钮事件
+        document.getElementById('backToStep1Btn').addEventListener('click', function() {
+            showStep(1);
+        });
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStepIndicator(1); // 初始化步骤指示器
+        });
+    </script>
+</body>
+</html>

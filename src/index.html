@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>立信英语</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 自定义样式 */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            margin-top: -70px;
+            padding-top: 70px;
+        }
+
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 992px) {
+            .hero-section {
+                height: auto;
+                padding: 100px 0;
+            }
+        }
+
+        /* 悬停效果 */
+        .card:hover {
+            transform: translateY(-5px);
+            transition: transform 0.3s ease;
+        }
+
+        /* 登录模态框样式 */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .auth-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 0.375rem;
+        }
+        .auth-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .auth-close:hover,
+        .auth-close:focus {
+            color: black;
+            text-decoration: none;
+        }
+        /* 加载指示器 */
+        .loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录/注册模态框 -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-content">
+            <span class="auth-close">&times;</span>
+            <h4 id="authModalTitle" class="mb-3">用户登录</h4>
+            <div id="authMessage" class="alert alert-danger d-none" role="alert"></div>
+            <form id="authForm">
+                <div class="mb-3">
+                    <label for="authEmail" class="form-label">邮箱地址</label>
+                    <input type="email" class="form-control" id="authEmail" required>
+                </div>
+                <div class="mb-3">
+                    <label for="authPassword" class="form-label">密码</label>
+                    <input type="password" class="form-control" id="authPassword" required>
+                </div>
+                <!-- 简化版移除了确认密码和注册模式切换 -->
+                <button type="submit" class="btn btn-primary w-100" id="authSubmitBtn">
+                    <span id="authBtnText">登录</span>
+                    <span id="authBtnLoading" class="spinner-border spinner-border-sm loading" role="status" aria-hidden="true"></span>
+                </button>
+                <p class="mt-3 text-center">
+                    <small>
+                        <!-- 简化说明 -->
+                        注意：此为演示版登录。实际应用需后端验证。
+                    </small>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">立信英语</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">关于</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">服务</a></li>
+                    <!-- 条件性显示的文章链接 -->
+                    <li class="nav-item"><a class="nav-link" id="articles-link" href="basic-crash-course.html">文章</a></li>
+                    <li class="nav-item">
+                        <span id="user-info" class="navbar-text me-2 d-none"></span>
+                        <a href="profile.html" class="btn btn-outline-primary btn-sm me-1 d-none" id="profile-btn">个人中心</a>
+                        <a href="learning-records.html" class="btn btn-outline-info btn-sm me-1 d-none" id="records-btn">学习记录</a>
+                        <a href="admin-vocabulary.html" class="btn btn-outline-warning btn-sm me-1 d-none" id="admin-btn">管理员</a>
+                        <button id="login-btn" class="btn btn-outline-primary btn-sm me-1">登录</button>
+                        <button id="logout-btn" class="btn btn-outline-secondary btn-sm d-none">登出</button>
+                    </li>
+					<li class="nav-item"><a class="btn btn-outline-success btn-sm me-1" href="register_with_payment.html">注册</a>
+					</li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">联系</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 首页大图 -->
+    <section id="home" class="hero-section">
+        <div class="container h-100">
+            <div class="row h-100 align-items-center">
+                <div class="col-lg-8 text-white">
+                    <h1 class="display-4 fw-bold mb-4">立信英语</h1>
+                    <p class="lead mb-4">每天半小时，让改变悄然发生。科学方法，高效学习，全面提升英语能力。</p>
+                    <a href="#contact" class="btn btn-light btn-lg me-3">联系我们</a>
+                    <!-- 根据用户状态动态调整链接 -->
+                    <a href="basic-crash-course.html" id="resource-link" class="btn btn-outline-light btn-lg">英语学习资源</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我们 -->
+    <section id="about" class="py-5 bg-light">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="mb-4">关于立信英语</h2>
+                    <p>立信英语致力于为中小学生提供科学、高效、有趣的英语学习方法和资源。我们摒弃传统的死记硬背模式，采用"项目制学习"和"沉浸式学习法"，让学习者在真实的语境中自然掌握英语。</p>
+                    <p>我们的核心理念是：时间短、方法正确、工具便捷、进步可见。通过每天翻译一篇文章，让单词和语法自然融入，扩大知识面，更贴近新中考高考要求。</p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://via.placeholder.com/500x300/667eea/ffffff?text=立信英语" class="img-fluid rounded" alt="立信英语">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 学习英语常见问题 -->
+    <section class="py-5">
+        <div class="container py-5">
+            <h2 class="text-center mb-5">学习英语常见问题</h2>
+            <div class="row text-center">
+                <div class="col-md-4 mb-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-3 text-primary">👂</span>
+                    </div>
+                    <h5 class="mb-3">听不懂</h5>
+                    <p class="text-muted">很多英语老师默认孩子学过中文语法，直接讲课。</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-3 text-success">🧠</span>
+                    </div>
+                    <h5 class="mb-3">记不住</h5>
+                    <p class="text-muted">单词、语法太多，没时间复习。</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-3 text-warning">😴</span>
+                    </div>
+                    <h5 class="mb-3">没意思</h5>
+                    <p class="text-muted">平时用不到，考试抱佛脚。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 服务项目 -->
+    <section id="services" class="py-5">
+        <div class="container py-5">
+            <h2 class="text-center mb-5">我们的服务</h2>
+            <div class="row">
+                <!-- 修改后的 服务项目1 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                                <span class="fs-3">📘</span>
+                            </div>
+                            <h5 class="card-title">基础速成</h5>
+                            <p class="card-text">提供英语基础语法和核心概念的快速入门指导。内容涵盖词性（名词、动词等）、简单句结构（主谓、主谓宾等）、16种时态基础、句子成分分析以及从句入门，帮助学习者快速建立扎实的英语基础框架。</p>
+                            <a href="basic-crash-course.html" class="btn btn-primary">立即学习</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- 修改后的 服务项目2 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon bg-success text-white rounded-circle mx-auto mb-3">
+                                <span class="fs-3">🧠</span>
+                            </div>
+                            <h5 class="card-title">学习方法</h5>
+                            <p class="card-text">深入解析立信英语的高效学习逻辑，包括"时间短、方法正确、项目制学习"等核心理念，并详细介绍"沉浸式学习法"、"间隔重复记忆法"和"输出驱动学习法"三大科学训练原理，帮助学习者掌握事半功倍的英语学习策略。</p>
+                            <a href="learning-methods.html" class="btn btn-success">查看详情</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- 修改后的 服务项目3 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon bg-info text-white rounded-circle mx-auto mb-3">
+                                <span class="fs-3">📚</span>
+                            </div>
+                            <h5 class="card-title">分级学习</h5>
+                            <p class="card-text">提供从小学四年级到高三的系统化英语学习资源。根据学习者不同阶段的需求，提供针对性的学习内容、练习和指导，循序渐进提升英语水平。</p>
+                            <a href="si-nian-ji.html" id="service-articles-link" class="btn btn-info">开始学习</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 立信英语的学习逻辑 -->
+    <section class="py-5 bg-info bg-opacity-10">
+        <div class="container py-5">
+            <h2 class="text-center mb-5">立信英语的学习逻辑</h2>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fs-5">⏱️</span>
+                        </div>
+                        <div class="ms-3">
+                            <h5>时间短</h5>
+                            <p class="mb-0">每天半小时，让改变悄然发生。利用碎片化时间，降低学习的心理门槛，更容易养成习惯。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fs-5">✅</span>
+                        </div>
+                        <div class="ms-3">
+                            <h5>方法正确</h5>
+                            <p class="mb-0">不再把英语拆分成单词和语法，而是综合学习，扩大知识面，更贴近新中考高考。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fs-5">📝</span>
+                        </div>
+                        <div class="ms-3">
+                            <h5>项目制学习</h5>
+                            <p class="mb-0">通过每天翻译一篇文章，让单词和语法自然融入，不死记硬背，文章素材多样提高知识面。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex">
+                        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fs-5">🛠️</span>
+                        </div>
+                        <div class="ms-3">
+                            <h5>工具便捷</h5>
+                            <p class="mb-0">提供翻译、语音识别等工具，方便学习。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex">
+                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fs-5">📈</span>
+                        </div>
+                        <div class="ms-3">
+                            <h5>进步可见</h5>
+                            <p class="mb-0">可以看到自己学习报告的前后对比，成就感强。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 训练原理 -->
+    <section class="py-5">
+        <div class="container py-5">
+            <h2 class="text-center mb-5">三大训练原理</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <span class="fs-2 text-primary">💧</span>
+                            </div>
+                            <h5 class="card-title mb-3">沉浸式学习法</h5>
+                            <p class="card-text text-muted">尽可能多地让自己暴露在目标语言环境中。每天安排固定时间进行英语输入（阅读、听力），创造英语环境。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <span class="fs-2 text-success">🔁</span>
+                            </div>
+                            <h5 class="card-title mb-3">间隔重复记忆法</h5>
+                            <p class="card-text text-muted">根据遗忘曲线规律，在即将遗忘时进行复习，可以极大地提高记忆效率和持久性。使用工具辅助复习。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <span class="fs-2 text-info">✍️</span>
+                            </div>
+                            <h5 class="card-title mb-3">输出驱动学习法</h5>
+                            <p class="card-text text-muted">通过"输出"（说、写、翻译）来驱动和检验"输入"（听、读）的效果。输出能暴露知识盲点，加深理解和记忆。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <section id="contact" class="py-5 bg-light">
+        <div class="container py-5">
+            <h2 class="text-center mb-5">联系我们</h2>
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h5>联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">📍 地址：上海市浦东新区立信路123号</li>
+                        <li class="mb-2">📞 电话：021-12345678</li>
+                        <li class="mb-2">✉️ 邮箱：info@liuxinenglish.com</li>
+                        <li class="mb-2">🌐 微信公众号：立信英语</li>
+                    </ul>
+                    <div class="mt-4">
+                        <h5>关注我们</h5>
+                        <p>扫码关注微信公众号，获取最新学习资源和资讯。</p>
+                        <img src="https://via.placeholder.com/150x150/cccccc/ffffff?text=微信公众号二维码" alt="微信公众号二维码" class="img-fluid" style="max-width: 150px;">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <form>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="您的姓名" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" placeholder="您的邮箱" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" rows="4" placeholder="您的留言" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">发送消息</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2024 立信英语. 保留所有权利.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">用心打造高效英语学习平台</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!--  <script src="../../public/js/api.js"></script> -->
+	<script src="api.js"></script>
+	<script src="/js/main.js"></script>
+    <script>
+        // --- 用户管理逻辑更新 ---
+        const USER_KEY = 'lixin_user';
+
+        // 获取 DOM 元素
+        const articlesLink = document.getElementById('articles-link');
+        const serviceArticlesLink = document.getElementById('service-articles-link');
+        const resourceLink = document.getElementById('resource-link');
+        const userInfo = document.getElementById('user-info');
+        const profileBtn = document.getElementById('profile-btn');
+        const recordsBtn = document.getElementById('records-btn');
+        const adminBtn = document.getElementById('admin-btn');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+		// 新的检查用户状态函数，与 learning-records.html 类似
+		async function checkUserStatus() {
+			console.log('[index.html DEBUG] checkUserStatus 函数开始执行...');
+			
+			// 尝试从 localStorage 获取 token
+			const token = localStorage.getItem('token'); 
+			console.log('[index.html DEBUG] 从 localStorage 获取到的 Token:', token);
+	
+			if (token) {
+				console.log('[index.html DEBUG] 找到 Token，准备调用 api.getCurrentUser() 验证...');
+				try {
+					// --- 关键调试点 1: 检查 api 实例 ---
+					console.log('[index.html DEBUG] 正在检查 api 实例:', typeof api, api);
+					if (typeof api === 'undefined' || typeof api.getCurrentUser !== 'function') {
+						throw new Error('api 实例未定义或 getCurrentUser 方法不存在');
+					}
+					// --- 关键调试点 1 结束 ---
+	
+					// 调用 api.js 的方法验证 token 并获取用户信息
+					console.log('[index.html DEBUG] 调用 api.getCurrentUser()...');
+					const response = await api.getCurrentUser(); // <-- 这会触发对 /api/user 的网络请求
+					console.log('[index.html DEBUG] 收到来自 api.getCurrentUser() 的响应:', response);
+					
+					if (response && response.user) {
+						console.log('[index.html DEBUG] Token 验证成功，获取到用户信息，准备更新 UI...');
+						updateUIForUser(response.user); // 使用从 API 获取的最新用户信息
+						console.log('[index.html DEBUG] UI 更新完成。');
+						return response.user;
+					} else {
+						console.warn('[index.html DEBUG] API 返回成功但没有用户数据:', response);
+						throw new Error('API returned no user data');
+					}
+				} catch (error) {
+					console.error('[index.html DEBUG] Token 验证失败:', error);
+					// Token 无效或过期，清除本地存储
+					localStorage.removeItem('token');
+					localStorage.removeItem('lixin_user'); // 明确清除用户缓存
+					console.log('[index.html DEBUG] 清除本地存储，准备更新 UI 为未登录状态...');
+					updateUIForUser(null); // 更新 UI 为未登录
+					console.log('[index.html DEBUG] UI 更新为未登录状态完成。');
+					return null;
+				}
+			} else {
+				console.log('[index.html DEBUG] 未找到 Token，准备更新 UI 为未登录状态...');
+				updateUIForUser(null); // 没有 token，更新 UI 为未登录
+				console.log('[index.html DEBUG] UI 更新为未登录状态完成。');
+				return null;
+			}
+		}
+
+        // 检查本地存储中的用户状态
+        function getStoredUser() {
+            const userStr = localStorage.getItem(USER_KEY);
+            return userStr ? JSON.parse(userStr) : null;
+        }
+
+        function storeUser(user) {
+            localStorage.setItem(USER_KEY, JSON.stringify(user));
+        }
+
+        function removeStoredUser() {
+            localStorage.removeItem(USER_KEY);
+        }
+
+        // 根据用户状态更新UI
+        function updateUIForUser(user) {
+            if (user) {
+                // 用户已登录
+                userInfo.textContent = `欢迎, ${user.email}`;
+                userInfo.classList.remove('d-none');
+                profileBtn.classList.remove('d-none');
+                recordsBtn.classList.remove('d-none');
+                adminBtn.classList.remove('d-none');
+                loginBtn.classList.add('d-none');
+                logoutBtn.classList.remove('d-none');
+
+                // 更新链接指向 si-nian-ji.html (完整资源)
+                articlesLink.href = "si-nian-ji.html";
+                if (serviceArticlesLink) serviceArticlesLink.href = "si-nian-ji.html";
+                resourceLink.href = "si-nian-ji.html";
+                resourceLink.textContent = "英语学习资源";
+
+                // 检查是否为管理员
+                const adminEmails = ['admin@example.com', 'admin@liuxinenglish.com'];
+                if (adminEmails.includes(user.email)) {
+                    adminBtn.classList.remove('d-none');
+                } else {
+                    adminBtn.classList.add('d-none');
+                }
+
+            } else {
+                // 用户未登录
+                userInfo.classList.add('d-none');
+                profileBtn.classList.add('d-none');
+                recordsBtn.classList.add('d-none');
+                adminBtn.classList.add('d-none');
+                loginBtn.classList.remove('d-none');
+                logoutBtn.classList.add('d-none');
+
+                // 更新链接指向 basic-crash-course.html (基础速成)
+                articlesLink.href = "basic-crash-course.html";
+                if (serviceArticlesLink) serviceArticlesLink.href = "basic-crash-course.html";
+                resourceLink.href = "basic-crash-course.html";
+                resourceLink.textContent = "英语学习资源 (基础速成)";
+            }
+        }
+
+        // 登出按钮事件
+        logoutBtn.addEventListener('click', () => {
+            removeStoredUser();
+            updateUIForUser(null);
+            // 重新加载页面以更新UI
+            location.reload();
+        });
+
+        // 登录按钮事件
+        loginBtn.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        // 页面加载时检查用户状态
+        //document.addEventListener('DOMContentLoaded', () => {
+        //    console.log('[index.html DEBUG] DOMContentLoaded 事件触发，准备调用 checkUserStatus()...');
+		//	const storedUser = getStoredUser();
+        //    updateUIForUser(storedUser);
+		
+        document.addEventListener('DOMContentLoaded', async () => {
+			console.log('[index.html DEBUG] DOMContentLoaded 事件触发，准备调用 checkUserStatus()...');
+			// const storedUser = getStoredUser(); // 移除旧的检查方式
+			// updateUIForUser(storedUser);
+			const user = await checkUserStatus(); // 调用新的检查函数
+			console.log('[index.html DEBUG] checkUserStatus() 执行完毕，返回的用户信息:', user);
+		});
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                if (this.id === 'articles-link' || this.id === 'service-articles-link' || this.id === 'resource-link') return;
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
