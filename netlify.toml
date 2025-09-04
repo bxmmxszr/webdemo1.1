@@ -1,0 +1,13 @@
+[build]
+  functions = "functions"
+  publish = "src" # 主要的 HTML 文件在这里
+
+[dev]
+  port = 5500
+  # targetPort 不需要，因为我们用 Functions 作为后端
+
+ # API 代理到 Netlify Function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
