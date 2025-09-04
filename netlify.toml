@@ -1,4 +1,5 @@
 [build]
+  command = "npm run build"
   functions = "functions"
   publish = "src" # 主要的 HTML 文件在这里
 
@@ -11,5 +12,6 @@
   from = "/api/*"
   to = "/.netlify/functions/server/:splat"
   status = 200
+
 
 
