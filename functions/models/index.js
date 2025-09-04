@@ -5,8 +5,8 @@ const app = express();
 
 // 加载所有路由
 const authRoutes = require('./authRoutes');
-const passageRoutes = require('./passageRoutes');
-const quizRecordRoutes = require('./quizRecordRoutes');
+const passageRoutes = require('../passageRoutes');
+const quizRecordRoutes = require('../quizRecordRoutes');
 
 // 注册路由
 app.use('/api/auth', authRoutes);
